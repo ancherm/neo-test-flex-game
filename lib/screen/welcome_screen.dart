@@ -5,7 +5,7 @@ import '../entity/user.dart';
 class WelcomeScreen extends StatefulWidget {
   final AppDatabase database;
 
-  WelcomeScreen({required this.database});
+  const WelcomeScreen({Key? key, required this.database}) : super(key: key);
 
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
@@ -15,9 +15,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   final _nameController = TextEditingController();
 
   void _saveUser() async {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Пожалуйста, введите имя')),
+      );
+      return;
+    }
+
     final user = User(
-      id: 0,
-      name: _nameController.text,
+      id: null, // id должен быть null, чтобы Floor сгенерировал его автоматически
+      name: name,
       points: 0,
       energy: 100,
       testsCompleted: 0,
@@ -29,31 +37,37 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Добро пожаловать')),
+      appBar: AppBar(title: const Text('Добро пожаловать')),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Введите ваше имя',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _saveUser,
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                textStyle: TextStyle(fontSize: 18),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                textStyle: const TextStyle(fontSize: 18),
               ),
-              child: Text('Сохранить'),
+              child: const Text('Сохранить'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 }

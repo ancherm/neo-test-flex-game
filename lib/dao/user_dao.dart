@@ -11,4 +11,7 @@ abstract class UserDao {
 
   @Update()
   Future<void> updateUser(User user);
+
+  @Query('SELECT * FROM User')
+  Future<List<User>> getAllUsers();
 }

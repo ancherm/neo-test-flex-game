@@ -1,26 +1,31 @@
 import 'package:flutter/material.dart';
-import 'service/database_helper.dart';
-import 'service/energy_manager.dart';
-import 'screen/main_screen.dart';
+import 'package:neo_test_flex_game/entity/user.dart';
+import 'package:neo_test_flex_game/screen/main_screen.dart';
+import 'package:neo_test_flex_game/screen/profile_screen.dart';
+import 'package:neo_test_flex_game/screen/welcome_screen.dart';
+import 'package:neo_test_flex_game/service/database_helper.dart';
+import 'package:neo_test_flex_game/service/energy_manager.dart';
 import 'app_database.dart';
-import 'screen/profile_screen.dart';
-
 
 Future<void> printDatabaseContents(AppDatabase database) async {
-    final user = await database.userDao.getUser();
-    print('Пользователь: $user');
+  final user = await database.userDao.getUser();
+  print('Пользователь: $user');
 
-    final tests = await database.testDao.getAllTests();
-    print('Тесты: $tests');
+  final tests = await database.testDao.getAllTests();
+  print('Тесты: $tests');
 
-    final shopItems = await database.shopDao.getAllShopItems();
-    print('Магазин: $shopItems');
-  }
+  final shopItems = await database.shopDao.getAllShopItems();
+  print('Магазин: $shopItems');
+
+  final allUsers = await database.userDao.getAllUsers();
+  print('Все пользователи: $allUsers');
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final database = await DatabaseHelper.database;
+  // await DatabaseHelper.insertInitialData();
   await printDatabaseContents(database);
-  await DatabaseHelper.insertInitialData();
   EnergyManager().startEnergyRecovery();
   runApp(MyApp(database: database));
 }
@@ -37,7 +42,19 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/main',
+      home: FutureBuilder<User?>(
+        future: database.userDao.getUser(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.data == null) {
+              return WelcomeScreen(database: database);
+            } else {
+              return MainScreen(database: database);
+            }
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
       routes: {
         '/main': (context) => MainScreen(database: database),
         '/profile': (context) => ProfileScreen(database: database),
