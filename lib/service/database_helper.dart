@@ -1,8 +1,8 @@
 import 'package:floor/floor.dart';
-import 'app_database.dart';
-import 'user.dart';
-import 'test.dart';
-import 'shop.dart';
+import '../app_database.dart';
+import '../entity/user.dart';
+import '../entity/test.dart';
+import '../entity/shop.dart';
 
 class DatabaseHelper {
   static AppDatabase? _database;
@@ -10,6 +10,7 @@ class DatabaseHelper {
   static Future<AppDatabase> get database async {
     if (_database != null) return _database!;
     _database = await $FloorAppDatabase.databaseBuilder('app.db').build();
+    print('МОЯ БД ' + database.toString());
     return _database!;
   }
 

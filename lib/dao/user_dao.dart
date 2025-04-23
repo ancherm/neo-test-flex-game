@@ -1,9 +1,9 @@
 import 'package:floor/floor.dart';
-import 'user.dart';
+import '../entity/user.dart';
 
 @dao
 abstract class UserDao {
-  @Query('SELECT * FROM User')
+  @Query('SELECT * FROM User LIMIT 1')
   Future<User?> getUser();
 
   @Insert(onConflict: OnConflictStrategy.replace)

@@ -14,4 +14,10 @@ class Shop {
     required this.cost,
     required this.type,
   });
+
+  @override
+  String toString() {
+    return 'Shop(id: $id, name: $name, cost: $cost, type: $type)';
+  }
+
 }

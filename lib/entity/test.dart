@@ -14,4 +14,10 @@ class Test {
     required this.answers,
     required this.correctAnswer,
   });
+
+  @override
+  String toString() {
+    return 'Test(id: $id, question: $question, answers: $answers, correctAnswer: $correctAnswer)';
+  }
+
 }

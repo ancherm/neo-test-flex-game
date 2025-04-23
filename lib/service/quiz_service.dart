@@ -1,6 +1,6 @@
 import 'package:floor/floor.dart';
 import 'database_helper.dart';
-import 'user.dart';
+import '../entity/user.dart';
 
 Future<void> checkAnswer(int selectedIndex, int correctAnswer) async {
   final db = await DatabaseHelper.database;

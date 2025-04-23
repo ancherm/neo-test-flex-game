@@ -16,4 +16,9 @@ class User {
     required this.testsCompleted,
     required this.energy,
   });
+
+  @override
+  String toString() {
+    return 'User(id: $id, name: $name, points: $points, testsCompleted: $testsCompleted, energy: $energy)';
+  }
 }

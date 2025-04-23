@@ -1,5 +1,5 @@
 import 'package:floor/floor.dart';
-import 'shop.dart';
+import '../entity/shop.dart';
 
 @dao
 abstract class ShopDao {

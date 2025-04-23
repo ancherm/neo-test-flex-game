@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:floor/floor.dart';
 import 'database_helper.dart';
-import 'user.dart';
+import '../entity/user.dart';
 
 class EnergyManager {
   Timer? _timer;

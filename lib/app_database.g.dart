@@ -167,7 +167,7 @@ class _$UserDao extends UserDao {
 
   @override
   Future<User?> getUser() async {
-    return _queryAdapter.query('SELECT * FROM User',
+    return _queryAdapter.query('SELECT * FROM User LIMIT 1',
         mapper: (Map<String, Object?> row) => User(
             id: row['id'] as int?,
             name: row['name'] as String,

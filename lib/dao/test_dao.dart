@@ -1,5 +1,5 @@
 import 'package:floor/floor.dart';
-import 'test.dart';
+import '../entity/test.dart';
 
 @dao
 abstract class TestDao {
