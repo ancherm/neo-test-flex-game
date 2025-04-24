@@ -32,7 +32,6 @@ class MainScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             child: Column(
               children: [
-                // --- кликабельная шапка ---
                 InkWell(
                   borderRadius: BorderRadius.circular(12),
                   onTap: () {
@@ -96,7 +95,6 @@ class MainScreen extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // --- сетка меню ---
                 Expanded(
                   child: GridView.count(
                     crossAxisCount: 2,
@@ -163,7 +161,7 @@ class MainScreen extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: gradientColors ??
-                const [Color(0xFF921c63), Color(0xFFe8a828)], // Neoflex стиль
+                const [Color(0xFF921c63), Color(0xFFe8a828)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

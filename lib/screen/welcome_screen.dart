@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';  // <-- импорт для фильтра
+import 'package:flutter/services.dart';
 import '../app_database.dart';
 import '../entity/user.dart';
 
@@ -23,7 +23,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       );
       return;
     }
-
     final user = User(
       id: null,
       name: name,
@@ -37,38 +36,111 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const gradientTop = Color(0xFF921C63);
+    const gradientBottom = Color(0xFFE8A828);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Добро пожаловать')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _nameController,
-              keyboardType: TextInputType.name,
-              textCapitalization: TextCapitalization.words,
-              inputFormatters: [
-                // Разрешаем только кириллические буквы и пробел
-                FilteringTextInputFormatter.allow(
-                  RegExp(r'[A-Za-zА-Яа-яЁё\s]'),
-                ),
-              ],
-              decoration: const InputDecoration(
-                labelText: 'Введите ваше имя',
-                border: OutlineInputBorder(),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [gradientTop, gradientBottom],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/neoflex-logo.png',
+                    width: 80,
+                    height: 80,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Добро пожаловать!',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Введите своё имя, чтобы начать',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 6,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: TextField(
+                        controller: _nameController,
+                        keyboardType: TextInputType.name,
+                        textCapitalization: TextCapitalization.words,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'[A-Za-zА-Яа-яЁё\s]'),
+                          ),
+                        ],
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Ваше имя',
+                          hintStyle: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(24),
+                    onTap: _saveUser,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [gradientTop, gradientBottom],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black38,
+                            offset: Offset(2, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      child: const Text(
+                        'Начать',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _saveUser,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                textStyle: const TextStyle(fontSize: 18),
-              ),
-              child: const Text('Сохранить'),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -5,7 +5,7 @@ class Test {
   @PrimaryKey(autoGenerate: true)
   final int? id;
   final String question;
-  final String answers; // Храним как JSON-строку
+  final String answers; 
   final int correctAnswer;
 
   Test({

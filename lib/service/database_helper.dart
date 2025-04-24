@@ -17,10 +17,8 @@ class DatabaseHelper {
  static Future<void> insertInitialData() async {
     final db = await database;
 
-    // Получаем все товары из магазина
     final shopItems = await db.shopDao.getAllShopItems();
 
-    // Проверка на наличие "энергии"
     final hasEnergy = shopItems.any((item) => item.name == 'Пополнение энергии');
     if (!hasEnergy) {
       await db.shopDao.insertShopItem(Shop(
@@ -58,7 +56,7 @@ class DatabaseHelper {
     if (!hasPowerbank) {
       await db.shopDao.insertShopItem(Shop(
         name: 'Powerbank',
-        cost: 20,
+        cost: 40,
         type: 'item',
         imageUrl: 'assets/images/powerbank.png',
         description: 'Powerbank для зарядки ваших устройств',
@@ -69,7 +67,7 @@ class DatabaseHelper {
     if (!hasSoundpad) {
       await db.shopDao.insertShopItem(Shop(
         name: 'Мини-колонка',
-        cost: 20,
+        cost: 50,
         type: 'item',
         imageUrl: 'assets/images/soundpad_mini.png',
         description: 'Мини-колонка',

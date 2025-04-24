@@ -48,11 +48,9 @@ class ProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // Верхняя градиентная карточка профиля
                 InkWell(
                   borderRadius: BorderRadius.circular(16),
                   onTap: () {
-                    // при желании можно обработать клик
                   },
                   child: Container(
                     width: double.infinity,
@@ -112,7 +110,6 @@ class ProfileScreen extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // Заголовок раздела покупок
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -125,7 +122,6 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
 
-                // Список покупок с градиентными карточками
                 purchases.isEmpty
                     ? Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),

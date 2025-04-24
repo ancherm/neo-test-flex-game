@@ -96,7 +96,6 @@ class _ShopScreenState extends State<ShopScreen> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            // --- Градиентная шапка ---
             InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: () => Navigator.push(
@@ -144,11 +143,9 @@ class _ShopScreenState extends State<ShopScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildMetric('Очки', user.points.toString(),
-                            iconColor: Colors.white),
+                        _buildMetric('Очки', user.points.toString(), Icons.star),
                         const SizedBox(width: 16),
-                        _buildMetric('Энергия', user.energy.toString(),
-                            iconColor: Colors.white),
+                        _buildMetric('Энергия', user.energy.toString(), Icons.bolt),
                       ],
                     ),
                   ],
@@ -158,7 +155,6 @@ class _ShopScreenState extends State<ShopScreen> {
 
             const SizedBox(height: 20),
 
-            // --- Градиентные карточки товаров ---
             Expanded(
               child: GridView.builder(
                 itemCount: items.length,
@@ -241,18 +237,17 @@ class _ShopScreenState extends State<ShopScreen> {
     );
   }
 
-  Widget _buildMetric(String label, String value,
-      {required Color iconColor}) {
+  Widget _buildMetric(String label, String value, IconData icon) {
     return Row(
       children: [
-        Icon(Icons.star, size: 16, color: iconColor),
+        Icon(icon, size: 16, color: Colors.white),
         const SizedBox(width: 4),
         Text(
           '$value $label',
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: iconColor,
+            color: Colors.white,
           ),
         ),
       ],
