@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:neo_test_flex_game/screen/profile_screen.dart';
 import '../app_database.dart';
 import '../entity/user.dart';
 
@@ -34,13 +35,27 @@ class _TestScreenState extends State<TestScreen> {
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Тесты'),
-          backgroundColor: Colors.blueAccent,
+          title: const Text(
+            'Тесты',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: const Color(0xFF150F1E),
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.person),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ProfileScreen(database: widget.database)),
+              ),
+            ),
+          ],
         ),
         body: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue.shade100, Colors.white],
+              colors: [Color(0xFF921C63), Color(0xFFE8A828)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -54,51 +69,39 @@ class _TestScreenState extends State<TestScreen> {
                   'Тест по истории компании',
                   _isTestCompleted('history'),
                   [
-                    _buildTestPart(
-                      context,
-                      'Часть 1',
-                      [
-                        {
-                          'question': 'На чем фокусировалась компания Neoflex в 2019 году?',
-                          'options': [
-                            'На заказной разработке высоконагруженных бизнес-приложений в микросервисной архитектуре и внедрении сложных ИТ-систем.',
-                            'На автоматизацию цифровых каналов и бизнес-процессов для заказчиков',
-                            'На разработку и внедрение сложных бизнес-приложений с использование передовых и современных методологий.',
-                          ],
-                          'correctIndex': 0,
-                        },
-                        {
-                          'question': 'В каких городах были открыты новые офисы компании Neoflex в 2021 году?',
-                          'options': [
-                            'В Москве и Саратове',
-                            'В Саратове и Самаре',
-                            'В Краснодаре и Самаре',
-                          ],
-                          'correctIndex': 2,
-                        },
-                      ],
-                      'history',
-                      'part1',
-                    ),
+                    _buildTestPart(context, 'Часть 1', [
+                      {
+                        'question': 'На чем фокусировалась компания Neoflex в 2019 году?',
+                        'options': [
+                          'На заказной разработке высоконагруженных бизнес-приложений в микросервисной архитектуре и внедрении сложных ИТ-систем.',
+                          'На автоматизацию цифровых каналов и бизнес-процессов для заказчиков',
+                          'На разработку и внедрение сложных бизнес-приложений с использование передовых и современных методологий.',
+                        ],
+                        'correctIndex': 0,
+                      },
+                      {
+                        'question': 'В каких городах были открыты новые офисы компании Neoflex в 2021 году?',
+                        'options': [
+                          'В Москве и Саратове',
+                          'В Саратове и Самаре',
+                          'В Краснодаре и Самаре',
+                        ],
+                        'correctIndex': 2,
+                      },
+                    ], 'history', 'part1'),
                     const SizedBox(height: 20),
-                    _buildTestPart(
-                      context,
-                      'Часть 2',
-                      [
-                        {
-                          'question': 'В каком году Neoflex стал первой российской компанией, получившей членство в международной Ассоциации Поставщиков Кредитной Информации (ACCIS)?',
-                          'options': ['2021', '2020', '2019'],
-                          'correctIndex': 1,
-                        },
-                        {
-                          'question': 'В каком году стартовала программа по обучению компьютерной грамотности и программированию для детей в детских домах?',
-                          'options': ['2021', '2020', '2019'],
-                          'correctIndex': 0,
-                        },
-                      ],
-                      'history',
-                      'part2',
-                    ),
+                    _buildTestPart(context, 'Часть 2', [
+                      {
+                        'question': 'В каком году Neoflex стал первой российской компанией, получившей членство в международной Ассоциации Поставщиков Кредитной Информации (ACCIS)?',
+                        'options': ['2021', '2020', '2019'],
+                        'correctIndex': 1,
+                      },
+                      {
+                        'question': 'В каком году стартовала программа по обучению компьютерной грамотности и программированию для детей в детских домах?',
+                        'options': ['2021', '2020', '2019'],
+                        'correctIndex': 0,
+                      },
+                    ], 'history', 'part2'),
                   ],
                 ),
                 const SizedBox(height: 30),
@@ -107,43 +110,31 @@ class _TestScreenState extends State<TestScreen> {
                   'Тест по Flutter',
                   _isTestCompleted('flutter'),
                   [
-                    _buildTestPart(
-                      context,
-                      'Часть 1',
-                      [
-                        {
-                          'question': 'Какой компанией был разработан Flutter?',
-                          'options': ['OpenAI', 'Microsoft', 'Google'],
-                          'correctIndex': 2,
-                        },
-                        {
-                          'question': 'В каком году был выпущен Flutter?',
-                          'options': ['2012', '2014', '2016'],
-                          'correctIndex': 1,
-                        },
-                      ],
-                      'flutter',
-                      'part1',
-                    ),
+                    _buildTestPart(context, 'Часть 1', [
+                      {
+                        'question': 'Какой компанией был разработан Flutter?',
+                        'options': ['OpenAI', 'Microsoft', 'Google'],
+                        'correctIndex': 2,
+                      },
+                      {
+                        'question': 'В каком году был выпущен Flutter?',
+                        'options': ['2012', '2014', '2016'],
+                        'correctIndex': 1,
+                      },
+                    ], 'flutter', 'part1'),
                     const SizedBox(height: 20),
-                    _buildTestPart(
-                      context,
-                      'Часть 2',
-                      [
-                        {
-                          'question': 'Как называлась первая версия Flutter?',
-                          'options': ['Sky', 'Blue', 'Dart'],
-                          'correctIndex': 0,
-                        },
-                        {
-                          'question': 'В какой версии Flutter была реализована поддержка создания настольных приложений для Windows, macOS, Linux и Google Fuchsia?',
-                          'options': ['Flutter 2.0', 'Flutter 3.0', 'Flutter 32.0'],
-                          'correctIndex': 0,
-                        },
-                      ],
-                      'flutter',
-                      'part2',
-                    ),
+                    _buildTestPart(context, 'Часть 2', [
+                      {
+                        'question': 'Как называлась первая версия Flutter?',
+                        'options': ['Sky', 'Blue', 'Dart'],
+                        'correctIndex': 0,
+                      },
+                      {
+                        'question': 'В какой версии Flutter была реализована поддержка создания настольных приложений для Windows, macOS, Linux и Google Fuchsia?',
+                        'options': ['Flutter 2.0', 'Flutter 3.0', 'Flutter 32.0'],
+                        'correctIndex': 0,
+                      },
+                    ], 'flutter', 'part2'),
                   ],
                 ),
               ],
@@ -155,8 +146,7 @@ class _TestScreenState extends State<TestScreen> {
   }
 
   bool _isTestCompleted(String testType) {
-    return _completedParts[testType]!['part1']! && 
-           _completedParts[testType]!['part2']!;
+    return _completedParts[testType]!['part1']! && _completedParts[testType]!['part2']!;
   }
 
   Future<bool> _onWillPop() async {
@@ -164,7 +154,7 @@ class _TestScreenState extends State<TestScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Выйти из теста?'),
-        content: const Text('Вы уверены, что хотите выйти? Ваши прогресс будет сохранен.'),
+        content: const Text('Вы уверены, что хотите выйти? Ваш прогресс будет сохранен.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -181,12 +171,13 @@ class _TestScreenState extends State<TestScreen> {
   }
 
   Widget _buildTestBlock(
-    BuildContext context, 
-    String title, 
+    BuildContext context,
+    String title,
     bool isTestCompleted,
     List<Widget> children,
   ) {
     return Card(
+      color: Colors.white.withOpacity(0.9),
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -204,7 +195,7 @@ class _TestScreenState extends State<TestScreen> {
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent,
+                    color: Color(0xFF921C63),
                   ),
                 ),
                 if (isTestCompleted)
@@ -230,6 +221,7 @@ class _TestScreenState extends State<TestScreen> {
     final partAnswers = _answers[testType]![part]!;
 
     return Card(
+      color: Colors.white.withOpacity(0.9),
       elevation: 3,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
@@ -248,7 +240,7 @@ class _TestScreenState extends State<TestScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isPartCompleted ? Colors.green : Colors.blueAccent,
+                color: isPartCompleted ? Colors.green : Color(0xFF921C63),
               ),
             ),
             const SizedBox(height: 15),
@@ -286,6 +278,7 @@ class _TestScreenState extends State<TestScreen> {
     ValueChanged<bool> onAnswerSelected,
   ) {
     return Card(
+      color: Colors.white.withOpacity(0.9),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(6),
@@ -300,13 +293,17 @@ class _TestScreenState extends State<TestScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
+                color: Colors.black87,
               ),
             ),
             const SizedBox(height: 8),
             ...List<Widget>.generate(
               options.length,
               (index) => RadioListTile<int>(
-                title: Text(options[index]),
+                title: Text(
+                  options[index],
+                  style: const TextStyle(color: Colors.black87),
+                ),
                 value: index,
                 groupValue: isPartCompleted && isCorrect ? correctIndex : null,
                 onChanged: isPartCompleted
@@ -317,11 +314,13 @@ class _TestScreenState extends State<TestScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              isCorrectAnswer 
-                                ? 'Правильный ответ!' 
-                                : 'Неправильный ответ',
+                              isCorrectAnswer
+                                  ? 'Правильный ответ!'
+                                  : 'Неправильный ответ',
                             ),
-                            backgroundColor: isCorrectAnswer ? Colors.green : Colors.red,
+                            backgroundColor: isCorrectAnswer
+                                ? Color.fromARGB(255, 49, 138, 50)
+                                : Color.fromARGB(255, 148, 21, 47), 
                             duration: const Duration(seconds: 1),
                           ),
                         );
@@ -345,58 +344,55 @@ class _TestScreenState extends State<TestScreen> {
           _completedParts[testType]![part] = true;
         });
 
-        // Update user energy (-5) for completing a part
         final user = await widget.database.userDao.getUser();
         if (user != null) {
           final updatedUser = User(
             id: user.id,
             name: user.name,
             points: user.points,
-            energy: user.energy - 5, // Subtract 5 energy for completing a part
+            energy: user.energy - 5,
             testsCompleted: user.testsCompleted,
           );
           await widget.database.userDao.updateUser(updatedUser);
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Часть пройдена! -5 энергии'),
-              backgroundColor: Colors.blue,
+            SnackBar(
+              content: const Text('Часть пройдена! -5 энергии'),
               duration: const Duration(seconds: 1),
             ),
           );
         }
 
-        // Check if the entire test is completed
         if (_isTestCompleted(testType)) {
           final user = await widget.database.userDao.getUser();
           if (user != null) {
             final updatedUser = User(
               id: user.id,
               name: user.name,
-              points: user.points + 20, // 20 points for the entire test
+              points: user.points + 20,
               energy: user.energy,
-              testsCompleted: user.testsCompleted + 1, // +1 completed test
+              testsCompleted: user.testsCompleted + 1,
             );
             await widget.database.userDao.updateUser(updatedUser);
-            
+
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Тест полностью пройден! +20 очков'),
-                backgroundColor: Colors.green,
+              SnackBar(
+                content: const Text('Тест полностью пройден! +20 очков'),
+                backgroundColor: Color.fromARGB(255, 44, 138, 25),
                 duration: const Duration(seconds: 1),
               ),
             );
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Часть пройдена! Завершите вторую часть для награды'),
-              backgroundColor: Colors.blue,
+            SnackBar(
+              content: const Text('Часть пройдена! Завершите вторую часть для награды'),
+              backgroundColor: Color.fromARGB(255, 44, 138, 25),
               duration: const Duration(seconds: 1),
             ),
           );
         }
-      } 
+      }
     }
   }
 }

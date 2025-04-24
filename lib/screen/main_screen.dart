@@ -1,136 +1,161 @@
-import 'package:flutter/material.dart';
-import 'package:neo_test_flex_game/app_database.dart';
-import 'package:neo_test_flex_game/entity/user.dart';
-import 'package:neo_test_flex_game/screen/profile_screen.dart';
+import 'dart:async';
 
-class MainScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import '../app_database.dart';
+import '../entity/user.dart';
+import 'profile_screen.dart';
+
+class MainScreen extends StatefulWidget {
   final AppDatabase database;
 
-  MainScreen({required this.database});
+  const MainScreen({Key? key, required this.database}) : super(key: key);
+
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  User? _user;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _loadUser();
+    });
+  }
+
+  Future<void> _loadUser() async {
+    final u = await widget.database.userDao.getUser();
+    if (mounted) {
+      setState(() {
+        _user = u;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    const gradientStart = Color(0xFF921C63);
+    const gradientEnd = Color(0xFFE8A828);
+
+    if (_user == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Главное меню',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('Главное меню', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF150F1E),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       backgroundColor: Colors.white,
-      body: FutureBuilder<User?>(
-        future: database.userDao.getUser(),
-        builder: (context, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final user = snap.data;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: Column(
-              children: [
-                InkWell(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Column(
+          children: [
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProfileScreen(database: widget.database),
+                ),
+              ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [gradientStart, gradientEnd],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.circular(12),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ProfileScreen(database: database),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(2, 2),
+                      blurRadius: 4,
                     ),
-                    elevation: 6,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      child: Row(
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'assets/images/neoflex-logo.png',
+                      width: 40,
+                      height: 40,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Image.asset(
-                            'assets/images/neoflex-logo.png',
-                            width: 40,
-                            height: 40,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  user != null
-                                      ? 'Привет, ${user.name}!'
-                                      : 'Добро пожаловать!',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    _buildMetric(Icons.star,
-                                        user?.points.toString() ?? '0'),
-                                    const SizedBox(width: 16),
-                                    _buildMetric(Icons.bolt,
-                                        user?.energy.toString() ?? '0'),
-                                  ],
-                                ),
-                              ],
+                          Text(
+                            'Привет, ${_user!.name}!',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
-                          const Icon(Icons.arrow_forward_ios,
-                              size: 16, color: Colors.grey),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              _buildMetric(Icons.star, _user!.points.toString()),
+                              const SizedBox(width: 16),
+                              _buildMetric(Icons.bolt, _user!.energy.toString()),
+                            ],
+                          ),
                         ],
                       ),
                     ),
-                  ),
+                    const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white70),
+                  ],
                 ),
-
-                const SizedBox(height: 24),
-
-                Expanded(
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1.1,
-                    children: [
-                      _buildGradientButton(
-                        icon: Icons.quiz,
-                        label: 'Тесты',
-                        onTap: () => Navigator.pushNamed(context, '/tests'),
-                      ),
-                      _buildGradientButton(
-                        icon: Icons.store,
-                        label: 'Магазин',
-                        onTap: () => Navigator.pushNamed(context, '/shop'),
-                      ),
-                      _buildGradientButton(
-                        icon: Icons.history,
-                        label: 'История\nНеофлекс',
-                        onTap: () => Navigator.pushNamed(context, '/history'),
-                      ),
-                      _buildGradientButton(
-                        icon: Icons.logout,
-                        label: 'Выйти',
-                        gradientColors: const [Colors.redAccent, Colors.red],
-                        onTap: () =>
-                            Navigator.pushReplacementNamed(context, '/welcome'),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          );
-        },
+            const SizedBox(height: 100),
+            Expanded(
+              child: ListView(
+                children: [
+                  _buildGradientButton(
+                    icon: Icons.quiz,
+                    label: 'Тесты',
+                    onTap: () => Navigator.pushNamed(context, '/tests'),
+                    colors: [gradientStart, gradientEnd],
+                  ),
+                  const SizedBox(height: 35),
+                  _buildGradientButton(
+                    icon: Icons.store,
+                    label: 'Магазин',
+                    onTap: () => Navigator.pushNamed(context, '/shop'),
+                    colors: [gradientStart, gradientEnd],
+                  ),
+                  const SizedBox(height: 35),
+                  _buildGradientButton(
+                    icon: Icons.history,
+                    label: 'История\nНеофлекс',
+                    onTap: () => Navigator.pushNamed(context, '/history'),
+                    colors: [gradientStart, gradientEnd],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -142,7 +167,7 @@ class MainScreen extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           value,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
         ),
       ],
     );
@@ -152,26 +177,22 @@ class MainScreen extends StatelessWidget {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
-    List<Color>? gradientColors,
+    required List<Color> colors,
   }) {
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
       child: Container(
+        height: 100,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: gradientColors ??
-                const [Color(0xFF921c63), Color(0xFFe8a828)],
+            colors: colors,
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              offset: Offset(2, 2),
-              blurRadius: 4,
-            ),
+            BoxShadow(color: Colors.black26, offset: Offset(2, 2), blurRadius: 4),
           ],
         ),
         child: Center(
@@ -183,11 +204,7 @@ class MainScreen extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
               ),
             ],
           ),

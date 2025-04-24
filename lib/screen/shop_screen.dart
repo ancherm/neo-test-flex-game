@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:neo_test_flex_game/app_database.dart';
 import 'package:neo_test_flex_game/entity/purchase.dart';
@@ -9,7 +10,6 @@ class ShopScreen extends StatefulWidget {
   final AppDatabase database;
 
   ShopScreen({required this.database});
-
   @override
   _ShopScreenState createState() => _ShopScreenState();
 }
@@ -18,16 +18,18 @@ class _ShopScreenState extends State<ShopScreen> {
   User? _user;
   List<Shop>? _items;
   bool _loading = true;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadAll();
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) => _loadAll());
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadAll() async {
     setState(() => _loading = true);
-    final u = await widget.database.userDao.getUser();
+    final u  = await widget.database.userDao.getUser();
     final it = await widget.database.shopDao.getAllShopItems();
     setState(() {
       _user = u;
@@ -36,38 +38,34 @@ class _ShopScreenState extends State<ShopScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   Future<void> _purchaseItem(Shop item) async {
     final user = _user!;
     if (user.points < item.cost) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Недостаточно очков'), duration: const Duration(seconds: 1)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Недостаточно очков')));
       return;
     }
-    if (item.type == 'energy' && user.energy + 5 > 100) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нельзя превысить 100 единиц энергии'), duration: const Duration(seconds: 1),),
-      );
+    if (item.type == 'energy' && user.energy + 5 > 20) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Нельзя превысить 20 энергии')));
       return;
     }
     user.points -= item.cost;
-    if (item.type == 'energy') user.energy += 5;
+    if (item.type == 'energy') user.energy += 10;
     await widget.database.userDao.updateUser(user);
-    await widget.database.purchaseDao.insertPurchase(
-      Purchase(shopItemId: item.id!, date: DateTime.now()),
-    );
+    await widget.database.purchaseDao.insertPurchase(Purchase(shopItemId: item.id!, date: DateTime.now()));
     setState(() {});
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Покупка "${item.name}" успешна!'), duration: const Duration(seconds: 1)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Покупка "${item.name}" успешна!')));
   }
 
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final user = _user!;
     final items = _items!;
@@ -80,15 +78,10 @@ class _ShopScreenState extends State<ShopScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.person),
-            tooltip: 'Профиль',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ProfileScreen(database: widget.database),
-                ),
-              );
-            },
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ProfileScreen(database: widget.database)),
+            ),
           ),
         ],
       ),
@@ -100,13 +93,10 @@ class _ShopScreenState extends State<ShopScreen> {
               borderRadius: BorderRadius.circular(12),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => ProfileScreen(database: widget.database),
-                ),
+                MaterialPageRoute(builder: (_) => ProfileScreen(database: widget.database)),
               ),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF921C63), Color(0xFFE8A828)],
@@ -114,31 +104,14 @@ class _ShopScreenState extends State<ShopScreen> {
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      offset: Offset(2, 2),
-                      blurRadius: 4,
-                    )
-                  ],
+                  boxShadow: const [BoxShadow(color: Colors.black26, offset: Offset(2,2), blurRadius: 4)],
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      'assets/images/neoflex-logo.png',
-                      width: 48,
-                      height: 48,
-                    ),
+                    Image.asset('assets/images/neoflex-logo.png', width: 48, height: 48),
                     const SizedBox(height: 12),
-                    Text(
-                      'Добро пожаловать в магазин',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall!
-                          .copyWith(color: Colors.white),
-                    ),
+                    Text('Добро пожаловать в магазин', textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white)),
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -154,76 +127,42 @@ class _ShopScreenState extends State<ShopScreen> {
             ),
 
             const SizedBox(height: 20),
-
             Expanded(
               child: GridView.builder(
                 itemCount: items.length,
-                gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.75,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, childAspectRatio: 0.6,
+                  crossAxisSpacing: 16, mainAxisSpacing: 16,
                 ),
                 itemBuilder: (ctx, i) {
-                  final item = items[i];
+                  final it = items[i];
                   return InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () => _purchaseItem(item),
+                    onTap: () => _purchaseItem(it),
                     child: Container(
                       height: 260,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFF921C63), Color(0xFFE8A828)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                          begin: Alignment.topLeft, end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            offset: Offset(2, 2),
-                            blurRadius: 4,
-                          )
-                        ],
+                        boxShadow: const [BoxShadow(color: Colors.black26, offset: Offset(2,2), blurRadius: 4)],
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: AspectRatio(
                               aspectRatio: 1.2,
-                              child: Image.asset(
-                                item.imageUrl,
-                                fit: BoxFit.cover,
-                              ),
+                              child: Image.asset(it.imageUrl, fit: BoxFit.cover),
                             ),
                           ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 6),
-                            child: Text(
-                              item.name,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Text(
-                            '${item.cost} очков',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          Text(it.name, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                               textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
+                          Text('${it.cost} очков', style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w600)),
                         ],
                       ),
                     ),
@@ -242,14 +181,8 @@ class _ShopScreenState extends State<ShopScreen> {
       children: [
         Icon(icon, size: 16, color: Colors.white),
         const SizedBox(width: 4),
-        Text(
-          '$value $label',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
+        Text('$value $label',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
       ],
     );
   }

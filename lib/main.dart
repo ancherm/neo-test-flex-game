@@ -37,24 +37,10 @@ void clearDB(AppDatabase database) {
   database.database.execute('DELETE FROM Purchase');
 }
 
-Future<void> deleteDatabaseFile() async {
-  final directory = await getApplicationDocumentsDirectory();
-  final dbPath = join(directory.path, 'app.db');
-
-  final dbFile = File(dbPath);
-  if (await dbFile.exists()) {
-    await dbFile.delete();
-    print('База данных удалена.');
-  } else {
-    print('Файл базы данных не найден.');
-  }
-}
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // deleteDatabaseFile();
   final database = await DatabaseHelper.database;
-  // clearDB(database);
+  clearDB(database);
   await DatabaseHelper.insertInitialData();
   await printDatabaseContents(database);
   EnergyManager().startEnergyRecovery();
@@ -90,11 +76,8 @@ class MyApp extends StatelessWidget {
         '/main': (context) => MainScreen(database: database),
         '/profile': (context) => ProfileScreen(database: database),
         '/tests': (context) => TestScreen(database: database),
-        // '/shop': (context) => ShopScreen(database: database),
         '/history': (context) => HistoryScreen(),
-        // '/tests': (context) => TestsScreen(database: database),
         '/shop': (context) => ShopScreen(database: database),
-        // '/history': (context) => HistoryScreen(database: database),
       },
     );
   }

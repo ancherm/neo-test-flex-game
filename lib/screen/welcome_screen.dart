@@ -26,7 +26,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final user = User(
       id: null,
       name: name,
-      points: 0,
+      points: 10,
       energy: 20,
       testsCompleted: 0,
     );
