@@ -16,6 +16,8 @@ dependencies:
   floor: ^1.2.0
   floor_annotation: ^1.2.0
   cupertino_icons: ^1.0.8
+  path_provider: ^2.0.14
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:
@@ -27,5 +29,6 @@ dev_dependencies:
 
 
 flutter:
-
+  assets:
+    - assets/images/
   uses-material-design: true

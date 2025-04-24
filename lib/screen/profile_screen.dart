@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../app_database.dart';
+import '../entity/purchase.dart';
+import '../entity/shop.dart';
 import '../entity/user.dart';
+import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatelessWidget {
   final AppDatabase database;
@@ -9,43 +12,137 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // загружаем User, все Purchases и все Shop-товары
+    final futureData = Future.wait([
+      database.userDao.getUser(),                 
+      database.purchaseDao.getAllPurchases(),     
+      database.shopDao.getAllShopItems(),         
+    ]);
+
     return Scaffold(
-      appBar: AppBar(title: Text('Профиль')),
-      body: FutureBuilder<User?>(
-        future: database.userDao.getUser(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            final user = snapshot.data;
-            if (user != null) {
-              return Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Card(
+      appBar: AppBar(title: const Text('Профиль')),
+      body: FutureBuilder<List<dynamic>>(
+        future: futureData,
+        builder: (context, snap) {
+          if (snap.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snap.hasError || snap.data == null) {
+            return Center(child: Text('Ошибка загрузки данных'));
+          }
+
+          final user      = snap.data![0] as User;
+          final purchases = snap.data![1] as List<Purchase>;
+          final shopItems = snap.data![2] as List<Shop>;
+
+          // Для быстрого доступа: словарь id→Shop 
+          final shopMap = { for (var item in shopItems) item.id!: item };
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                // Верхняя карточка профиля
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 4,
                   child: Padding(
-                    padding: EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Имя: ${user.name}', style: TextStyle(fontSize: 18)),
-                        SizedBox(height: 10),
-                        Text('Очки: ${user.points}', style: TextStyle(fontSize: 18)),
-                        SizedBox(height: 10),
-                        Text('Энергия: ${user.energy}', style: TextStyle(fontSize: 18)),
-                        SizedBox(height: 10),
-                        Text('Пройдено тестов: ${user.testsCompleted}', style: TextStyle(fontSize: 18)),
+                        CircleAvatar(
+                          radius: 36,
+                          child: Text(
+                            user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
+                            style: const TextStyle(fontSize: 32),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          user.name,
+                          style: const TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        // Метрики: Очки, Энергия, Тесты
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildMetric('Очки', user.points.toString()),
+                            _buildMetric('Энергия', user.energy.toString()),
+                            _buildMetric('Тесты', user.testsCompleted.toString()),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
-              );
-            } else {
-              return Center(child: Text('Пользователь не найден'));
-            }
-          } else {
-            return Center(child: CircularProgressIndicator());
-          }
+
+                const SizedBox(height: 24),
+                // Заголовок раздела покупок
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Ваши покупки',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Список покупок
+                purchases.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          'Покупки отсутствуют',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: purchases.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (ctx, i) {
+                          final p = purchases[i];
+                          final item = shopMap[p.shopItemId];
+                          final date = DateFormat('dd.MM.yyyy HH:mm').format(p.date);
+                          return Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2,
+                            child: ListTile(
+                              leading: item != null
+                                  ? Image.asset(item.imageUrl, width: 40, height: 40)
+                                  : const Icon(Icons.shopping_bag),
+                              title: Text(item?.name ?? '—'),
+                              subtitle: Text(date),
+                            ),
+                          );
+                        },
+                      ),
+              ],
+            ),
+          );
         },
       ),
+    );
+  }
+
+  Widget _buildMetric(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(label),
+      ],
     );
   }
 }

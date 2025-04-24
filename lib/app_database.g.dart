@@ -78,6 +78,8 @@ class _$AppDatabase extends AppDatabase {
 
   ShopDao? _shopDaoInstance;
 
+  PurchaseDao? _purchaseDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -104,7 +106,9 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Tests` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `question` TEXT NOT NULL, `answers` TEXT NOT NULL, `correctAnswer` INTEGER NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Shop` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `cost` INTEGER NOT NULL, `type` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `Shop` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `cost` INTEGER NOT NULL, `type` TEXT NOT NULL, `description` TEXT NOT NULL, `imageUrl` TEXT NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `Purchase` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `shopItemId` INTEGER NOT NULL, `date` INTEGER NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -125,6 +129,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   ShopDao get shopDao {
     return _shopDaoInstance ??= _$ShopDao(database, changeListener);
+  }
+
+  @override
+  PurchaseDao get purchaseDao {
+    return _purchaseDaoInstance ??= _$PurchaseDao(database, changeListener);
   }
 }
 
@@ -249,7 +258,9 @@ class _$ShopDao extends ShopDao {
                   'id': item.id,
                   'name': item.name,
                   'cost': item.cost,
-                  'type': item.type
+                  'type': item.type,
+                  'description': item.description,
+                  'imageUrl': item.imageUrl
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -267,7 +278,9 @@ class _$ShopDao extends ShopDao {
             id: row['id'] as int?,
             name: row['name'] as String,
             cost: row['cost'] as int,
-            type: row['type'] as String));
+            type: row['type'] as String,
+            description: row['description'] as String,
+            imageUrl: row['imageUrl'] as String));
   }
 
   @override
@@ -275,3 +288,44 @@ class _$ShopDao extends ShopDao {
     await _shopInsertionAdapter.insert(shop, OnConflictStrategy.replace);
   }
 }
+
+class _$PurchaseDao extends PurchaseDao {
+  _$PurchaseDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _purchaseInsertionAdapter = InsertionAdapter(
+            database,
+            'Purchase',
+            (Purchase item) => <String, Object?>{
+                  'id': item.id,
+                  'shopItemId': item.shopItemId,
+                  'date': _dateTimeConverter.encode(item.date)
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Purchase> _purchaseInsertionAdapter;
+
+  @override
+  Future<List<Purchase>> getAllPurchases() async {
+    return _queryAdapter.queryList('SELECT * FROM Purchase',
+        mapper: (Map<String, Object?> row) => Purchase(
+            id: row['id'] as int?,
+            shopItemId: row['shopItemId'] as int,
+            date: _dateTimeConverter.decode(row['date'] as int)));
+  }
+
+  @override
+  Future<void> insertPurchase(Purchase purchase) async {
+    await _purchaseInsertionAdapter.insert(
+        purchase, OnConflictStrategy.replace);
+  }
+}
+
+// ignore_for_file: unused_element
+final _dateTimeConverter = DateTimeConverter();

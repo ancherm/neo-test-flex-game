@@ -26,7 +26,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final user = User(
       id: null, // id должен быть null, чтобы Floor сгенерировал его автоматически
       name: name,
-      points: 0,
+      points: 50,
       energy: 100,
       testsCompleted: 0,
     );
