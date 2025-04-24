@@ -40,13 +40,13 @@ class _ShopScreenState extends State<ShopScreen> {
     final user = _user!;
     if (user.points < item.cost) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Недостаточно очков')),
+        const SnackBar(content: Text('Недостаточно очков'), duration: const Duration(seconds: 1)),
       );
       return;
     }
     if (item.type == 'energy' && user.energy + 5 > 100) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нельзя превысить 100 единиц энергии')),
+        const SnackBar(content: Text('Нельзя превысить 100 единиц энергии'), duration: const Duration(seconds: 1),),
       );
       return;
     }
@@ -58,7 +58,7 @@ class _ShopScreenState extends State<ShopScreen> {
     );
     setState(() {});
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Покупка "${item.name}" успешна!')),
+      SnackBar(content: Text('Покупка "${item.name}" успешна!'), duration: const Duration(seconds: 1)),
     );
   }
 
@@ -161,7 +161,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 gridDelegate:
                     const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.6,
+                  childAspectRatio: 0.75,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
