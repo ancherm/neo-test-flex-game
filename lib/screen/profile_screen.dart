@@ -10,24 +10,24 @@ class ProfileScreen extends StatelessWidget {
 
   ProfileScreen({required this.database});
 
+  static const _gradientColors = [
+    Color(0xFF921C63),
+    Color(0xFFE8A828),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    // загружаем User, все Purchases и все Shop-товары
     final futureData = Future.wait([
-      database.userDao.getUser(),                 
-      database.purchaseDao.getAllPurchases(),     
-      database.shopDao.getAllShopItems(),         
+      database.userDao.getUser(),
+      database.purchaseDao.getAllPurchases(),
+      database.shopDao.getAllShopItems(),
     ]);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Профиль',
-          style: TextStyle(color: Colors.white)
-        ),
+        title: const Text('Профиль', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF150F1E),
         iconTheme: const IconThemeData(color: Colors.white),
-        foregroundColor: Colors.white,
       ),
       body: FutureBuilder<List<dynamic>>(
         future: futureData,
@@ -39,49 +39,70 @@ class ProfileScreen extends StatelessWidget {
             return Center(child: Text('Ошибка загрузки данных'));
           }
 
-          final user      = snap.data![0] as User;
+          final user = snap.data![0] as User;
           final purchases = snap.data![1] as List<Purchase>;
           final shopItems = snap.data![2] as List<Shop>;
-
-          // Для быстрого доступа: словарь id→Shop 
           final shopMap = { for (var item in shopItems) item.id!: item };
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // Верхняя карточка профиля
-                Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 4,
-                  child: Padding(
+                // Верхняя градиентная карточка профиля
+                InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    // при желании можно обработать клик
+                  },
+                  child: Container(
+                    width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: _gradientColors,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: Offset(2, 2),
+                        )
+                      ],
+                    ),
                     child: Column(
                       children: [
                         CircleAvatar(
                           radius: 36,
+                          backgroundColor: Colors.white24,
                           child: Text(
-                            user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
-                            style: const TextStyle(fontSize: 32),
+                            user.name.isNotEmpty
+                                ? user.name[0].toUpperCase()
+                                : '?',
+                            style: const TextStyle(
+                              fontSize: 32,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 12),
                         Text(
                           user.name,
                           style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 20),
-                        // Метрики: Очки, Энергия, Тесты
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _buildMetric('Очки', user.points.toString()),
-                            _buildMetric('Энергия', user.energy.toString()),
-                            _buildMetric('Тесты', user.testsCompleted.toString()),
+                            _buildMetric('Очки', user.points.toString(), Colors.white),
+                            _buildMetric('Энергия', user.energy.toString(), Colors.white),
+                            _buildMetric('Тесты', user.testsCompleted.toString(), Colors.white),
                           ],
                         ),
                       ],
@@ -90,17 +111,21 @@ class ProfileScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 24),
+
                 // Заголовок раздела покупок
                 Align(
-                  alignment: Alignment.center,
+                  alignment: Alignment.centerLeft,
                   child: Text(
                     'Ваши покупки',
-                    style: Theme.of(context).textTheme.headlineMedium,
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium!
+                        .copyWith(color: Colors.black87),
                   ),
                 ),
                 const SizedBox(height: 12),
 
-                // Список покупок
+                // Список покупок с градиентными карточками
                 purchases.isEmpty
                     ? Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -118,17 +143,38 @@ class ProfileScreen extends StatelessWidget {
                           final p = purchases[i];
                           final item = shopMap[p.shopItemId];
                           final date = DateFormat('dd.MM.yyyy HH:mm').format(p.date);
-                          return Card(
-                            shape: RoundedRectangleBorder(
+                          return Container(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: _gradientColors,
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                               borderRadius: BorderRadius.circular(12),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 2,
+                                  offset: Offset(1, 1),
+                                )
+                              ],
                             ),
-                            elevation: 2,
                             child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               leading: item != null
-                                  ? Image.asset(item.imageUrl, width: 40, height: 40)
-                                  : const Icon(Icons.shopping_bag),
-                              title: Text(item?.name ?? '—'),
-                              subtitle: Text(date),
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.asset(item.imageUrl, width: 40, height: 40, fit: BoxFit.cover),
+                                    )
+                                  : const Icon(Icons.shopping_bag, color: Colors.white),
+                              title: Text(
+                                item?.name ?? '—',
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                date,
+                                style: const TextStyle(color: Colors.white70),
+                              ),
                             ),
                           );
                         },
@@ -141,15 +187,15 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMetric(String label, String value) {
+  Widget _buildMetric(String label, String value, Color color) {
     return Column(
       children: [
         Text(
           value,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
         ),
         const SizedBox(height: 4),
-        Text(label),
+        Text(label, style: TextStyle(color: color)),
       ],
     );
   }
