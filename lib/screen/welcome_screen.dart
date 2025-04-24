@@ -27,7 +27,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       id: null, // id должен быть null, чтобы Floor сгенерировал его автоматически
       name: name,
       points: 0,
-      energy: 100,
+      energy: 20,
       testsCompleted: 0,
     );
     await widget.database.userDao.insertUser(user);

@@ -5,7 +5,7 @@ import '../entity/user.dart';
 
 class EnergyManager {
   Timer? _timer;
-  final int maxEnergy = 100;
+  final int maxEnergy = 20;
   final int recoveryRate = 5; // минут
 
   void startEnergyRecovery() {

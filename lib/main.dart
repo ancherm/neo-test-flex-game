@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:neo_test_flex_game/entity/user.dart';
+import 'package:neo_test_flex_game/screen/history_screen.dart';
 import 'package:neo_test_flex_game/screen/main_screen.dart';
 import 'package:neo_test_flex_game/screen/profile_screen.dart';
+import 'package:neo_test_flex_game/screen/test_screen.dart';
 import 'package:neo_test_flex_game/screen/welcome_screen.dart';
 import 'package:neo_test_flex_game/service/database_helper.dart';
 import 'package:neo_test_flex_game/service/energy_manager.dart';
@@ -58,9 +60,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/main': (context) => MainScreen(database: database),
         '/profile': (context) => ProfileScreen(database: database),
-        // '/tests': (context) => TestsScreen(database: database),
+        '/tests': (context) => TestScreen(database: database),
         // '/shop': (context) => ShopScreen(database: database),
-        // '/history': (context) => HistoryScreen(database: database),
+        '/history': (context) => HistoryScreen(),
       },
     );
   }
