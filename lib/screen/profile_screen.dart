@@ -20,7 +20,15 @@ class ProfileScreen extends StatelessWidget {
     ]);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Профиль')),
+      appBar: AppBar(
+        title: const Text(
+          'Профиль',
+          style: TextStyle(color: Colors.white)
+        ),
+        backgroundColor: const Color(0xFF150F1E),
+        iconTheme: const IconThemeData(color: Colors.white),
+        foregroundColor: Colors.white,
+      ),
       body: FutureBuilder<List<dynamic>>(
         future: futureData,
         builder: (context, snap) {

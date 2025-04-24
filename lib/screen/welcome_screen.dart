@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';  // <-- импорт для фильтра
 import '../app_database.dart';
 import '../entity/user.dart';
 
@@ -24,9 +25,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     }
 
     final user = User(
-      id: null, // id должен быть null, чтобы Floor сгенерировал его автоматически
+      id: null,
       name: name,
-      points: 50,
+      points: 500,
       energy: 100,
       testsCompleted: 0,
     );
@@ -45,6 +46,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           children: [
             TextField(
               controller: _nameController,
+              keyboardType: TextInputType.name,
+              textCapitalization: TextCapitalization.words,
+              inputFormatters: [
+                // Разрешаем только кириллические буквы и пробел
+                FilteringTextInputFormatter.allow(
+                  RegExp(r'[A-Za-zА-Яа-яЁё\s]'),
+                ),
+              ],
               decoration: const InputDecoration(
                 labelText: 'Введите ваше имя',
                 border: OutlineInputBorder(),

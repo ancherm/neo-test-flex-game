@@ -32,14 +32,47 @@ class DatabaseHelper {
       ));
     }
 
-    final hasShirt = shopItems.any((item) => item.name == 'Футболка');
-    if (!hasShirt) {
+    final hasBottle = shopItems.any((item) => item.name == 'Спортивная бутылка');
+    if (!hasBottle) {
       await db.shopDao.insertShopItem(Shop(
-        name: 'Футболка',
+        name: 'Спортивная бутылка',
         cost: 30,
         type: 'item',
-        imageUrl: 'assets/images/neoflex-logo.png',
-        description: 'Стильная футболка для вашего профиля.',
+        imageUrl: 'assets/images/bottle.png',
+        description: 'Спортивная бутылка для ваших напитков',
+      ));
+    }
+
+    final hasNote = shopItems.any((item) => item.name == 'Блокнот');
+    if (!hasNote) {
+      await db.shopDao.insertShopItem(Shop(
+        name: 'Блокнот',
+        cost: 20,
+        type: 'item',
+        imageUrl: 'assets/images/note.png',
+        description: 'Блокнот с маскотом Neoflex',
+      ));
+    }
+
+    final hasPowerbank = shopItems.any((item) => item.name == 'Powerbank');
+    if (!hasPowerbank) {
+      await db.shopDao.insertShopItem(Shop(
+        name: 'Powerbank',
+        cost: 20,
+        type: 'item',
+        imageUrl: 'assets/images/powerbank.png',
+        description: 'Powerbank для зарядки ваших устройств',
+      ));
+    }
+
+    final hasSoundpad = shopItems.any((item) => item.name == 'Мини-колонка');
+    if (!hasSoundpad) {
+      await db.shopDao.insertShopItem(Shop(
+        name: 'Мини-колонка',
+        cost: 20,
+        type: 'item',
+        imageUrl: 'assets/images/soundpad_mini.png',
+        description: 'Мини-колонка',
       ));
     }
   }

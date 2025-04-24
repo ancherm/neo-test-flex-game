@@ -52,7 +52,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // deleteDatabaseFile();
   final database = await DatabaseHelper.database;
-  clearDB(database);
+  // clearDB(database);
   await DatabaseHelper.insertInitialData();
   await printDatabaseContents(database);
   EnergyManager().startEnergyRecovery();
