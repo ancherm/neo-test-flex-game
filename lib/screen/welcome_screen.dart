@@ -26,8 +26,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final user = User(
       id: null,
       name: name,
-      points: 500,
-      energy: 100,
+      points: 0,
+      energy: 20,
       testsCompleted: 0,
     );
     await widget.database.userDao.insertUser(user);
