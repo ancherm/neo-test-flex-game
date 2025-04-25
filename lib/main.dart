@@ -30,17 +30,9 @@ Future<void> printDatabaseContents(AppDatabase database) async {
   print('Все покупки: $allPurchases');
 }
 
-void clearDB(AppDatabase database) {
-  database.database.execute('DELETE FROM User');
-  database.database.execute('DELETE FROM Shop');
-  database.database.execute('DELETE FROM Tests');
-  database.database.execute('DELETE FROM Purchase');
-}
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final database = await DatabaseHelper.database;
-  clearDB(database);
   await DatabaseHelper.insertInitialData();
   await printDatabaseContents(database);
   EnergyManager().startEnergyRecovery();
