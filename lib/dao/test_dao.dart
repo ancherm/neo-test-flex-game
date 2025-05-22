@@ -1,11 +1,20 @@
-import 'package:floor/floor.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../entity/test.dart';
 
-@dao
-abstract class TestDao {
-  @Query('SELECT * FROM Tests')
-  Future<List<Test>> getAllTests();
+class TestDao {
+  final CollectionReference<Map<String, dynamic>> _col =
+  FirebaseFirestore.instance.collection('tests');
 
-  @Insert(onConflict: OnConflictStrategy.replace)
-  Future<void> insertTest(Test test);
+  /// Вставить один тест
+  Future<void> insertTest(Test test) {
+    return _col.add(test.toMap());
+  }
+
+  /// Получить все тесты
+  Future<List<Test>> getAllTests() async {
+    final snapshot = await _col.get();
+    return snapshot.docs
+        .map((doc) => Test.fromFirestore(doc))
+        .toList();
+  }
 }

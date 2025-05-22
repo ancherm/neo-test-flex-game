@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "203966076786",
+    "project_id": "neo-test-flex-game",
+    "storage_bucket": "neo-test-flex-game.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:203966076786:android:21cc34a8700fd07a70efeb",
+        "android_client_info": {
+          "package_name": "ru.redcode"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2jg0V57Go6NrukZLMQ5WAyB7vF_ChizM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

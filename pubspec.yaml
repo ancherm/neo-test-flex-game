@@ -11,13 +11,16 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # sqflite: ^2.0.0+3
-  # path: ^1.8.0
-  floor: ^1.2.0
-  floor_annotation: ^1.2.0
+  shared_preferences: ^2.0.0
+  firebase_core: ^3.13.1
+  cloud_firestore: ^5.6.8
+  firebase_auth: ^5.5.3
+
+  # floor: ^1.2.0
+  # floor_annotation: ^1.2.0
   cupertino_icons: ^1.0.8
-  path_provider: ^2.0.14
-  intl: ^0.18.0
+  # path_provider: ^2.0.14
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

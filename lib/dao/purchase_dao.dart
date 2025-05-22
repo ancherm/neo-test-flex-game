@@ -1,12 +1,33 @@
-import 'package:floor/floor.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../entity/purchase.dart';
 
-@dao
-abstract class PurchaseDao {
-  @Insert(onConflict: OnConflictStrategy.replace)
-  Future<void> insertPurchase(Purchase purchase);
+class PurchaseDao {
+  final CollectionReference<Map<String, dynamic>> _col;
 
-  @Query('SELECT * FROM Purchase')
-  Future<List<Purchase>> getAllPurchases();
+  /// При создании DAO передаёшь ID пользователя,
+  /// под которым будут храниться его покупки.
+  PurchaseDao(String userId)
+      : _col = FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('purchases');
 
+  /// Вставить новую покупку
+  Future<void> insertPurchase(Purchase purchase) async {
+    await _col.add(purchase.toMap());
+  }
+
+  /// Получить все покупки пользователя
+  Future<List<Purchase>> getAllPurchases() async {
+    final snap = await _col.get();
+    return snap.docs
+        .map((doc) => Purchase.fromFirestore(doc))
+        .toList();
+  }
+
+  /// (опционально) Следить в реальном времени за покупками
+  Stream<List<Purchase>> watchAllPurchases() {
+    return _col.snapshots().map((snap) =>
+        snap.docs.map((d) => Purchase.fromFirestore(d)).toList());
+  }
 }

@@ -1,42 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:neo_test_flex_game/entity/user.dart';
-import 'package:neo_test_flex_game/screen/history_screen.dart';
-import 'package:neo_test_flex_game/screen/main_screen.dart';
-import 'package:neo_test_flex_game/screen/profile_screen.dart';
-import 'package:neo_test_flex_game/screen/test_screen.dart';
-import 'package:neo_test_flex_game/screen/shop_screen.dart';
-import 'package:neo_test_flex_game/screen/welcome_screen.dart';
-import 'package:neo_test_flex_game/service/database_helper.dart';
-import 'package:neo_test_flex_game/service/energy_manager.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:neo_test_flex_game/screen/auth_gate.dart';
+import 'package:neo_test_flex_game/service/test_seeder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'app_database.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
+import 'data/initial_tests.dart';
+import 'service/database_helper.dart';
+import 'service/energy_manager.dart';
 
-Future<void> printDatabaseContents(AppDatabase database) async {
-  final user = await database.userDao.getUser();
-  print('Пользователь: $user');
+import 'screen/main_screen.dart';
+import 'screen/profile_screen.dart';
+import 'screen/test_screen.dart';
+import 'screen/shop_screen.dart';
+import 'screen/history_screen.dart';
 
-  final tests = await database.testDao.getAllTests();
-  print('Тесты: $tests');
-
-  final shopItems = await database.shopDao.getAllShopItems();
-  print('Магазин: $shopItems');
-
-  final allUsers = await database.userDao.getAllUsers();
-  print('Все пользователи: $allUsers');
-
-  final allPurchases = await database.purchaseDao.getAllPurchases();
-  print('Все покупки: $allPurchases');
-}
-
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final database = await DatabaseHelper.database;
+  await Firebase.initializeApp();
+
+  // Наш "контейнер" с DAO
+  final appDatabase = AppDatabase();
+  final userDao     = appDatabase.userDao;
+
+  // Первичная загрузка товаров в Firestore (если ещё нет)
   await DatabaseHelper.insertInitialData();
-  await printDatabaseContents(database);
-  EnergyManager().startEnergyRecovery();
-  runApp(MyApp(database: database));
+
+  final prefs = await SharedPreferences.getInstance();
+  final energyManager = EnergyManager(userDao, prefs);
+  await energyManager.recoverOffline();
+
+  energyManager.startEnergyRecovery();
+
+  await TestSeeder.seedInitialTests(initialTests);
+
+  runApp(MyApp(database: appDatabase));
 }
 
 class MyApp extends StatelessWidget {
@@ -48,28 +45,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Неофлекс Гейм',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: FutureBuilder<User?>(
-        future: database.userDao.getUser(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.data == null) {
-              return WelcomeScreen(database: database);
-            } else {
-              return MainScreen(database: database);
-            }
-          }
-          return const Center(child: CircularProgressIndicator());
-        },
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      // Решаем, куда идти: на Welcome или сразу в Main
+      home: AuthGate(database: database),
       routes: {
-        '/main': (context) => MainScreen(database: database),
-        '/profile': (context) => ProfileScreen(database: database),
-        '/tests': (context) => TestScreen(database: database),
-        '/history': (context) => HistoryScreen(),
-        '/shop': (context) => ShopScreen(database: database),
+        '/main':    (_) => MainScreen(database: database),
+        '/profile': (_) => ProfileScreen(database: database),
+        '/tests':   (_) => LevelSelectionScreen(database: database),
+        '/shop':    (_) => ShopScreen(database: database),
+        '/history': (_) => HistoryScreen(),
       },
     );
   }

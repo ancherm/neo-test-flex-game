@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
 import 'package:neo_test_flex_game/app_database.dart';
 import 'package:neo_test_flex_game/entity/purchase.dart';
@@ -16,8 +17,8 @@ class ShopScreen extends StatefulWidget {
 
 class _ShopScreenState extends State<ShopScreen> {
   User? _user;
-  List<Shop>? _items;
-  bool _loading = true;
+  List<Shop> _items = [];
+  // bool _loading = true;
   Timer? _timer;
 
   @override
@@ -27,14 +28,21 @@ class _ShopScreenState extends State<ShopScreen> {
     _timer = Timer.periodic(const Duration(seconds: 5), (_) => _loadAll());
   }
 
+  @override
   Future<void> _loadAll() async {
-    setState(() => _loading = true);
-    final u  = await widget.database.userDao.getUser();
-    final it = await widget.database.shopDao.getAllShopItems();
+    // получаем данные
+    final fb_auth.User? fbUser = fb_auth.FirebaseAuth.instance.currentUser;
+    if (fbUser == null) {
+      // если вдруг разлогинились, перенаправим на экран входа
+      Navigator.of(context).pushReplacementNamed('/');
+      return;
+    }
+    final user = await widget.database.userDao.getUserById(fbUser.uid);
+    final items = await widget.database.shopDao.getAllShopItems();
+    if (!mounted) return;
     setState(() {
-      _user = u;
-      _items = it;
-      _loading = false;
+      _user  = user;
+      _items = items;
     });
   }
 
@@ -47,25 +55,40 @@ class _ShopScreenState extends State<ShopScreen> {
   Future<void> _purchaseItem(Shop item) async {
     final user = _user!;
     if (user.points < item.cost) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Недостаточно очков')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Недостаточно очков')));
       return;
     }
     if (item.type == 'energy' && user.energy + 5 > 20) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Нельзя превысить 20 энергии')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Нельзя превысить 20 энергии')));
       return;
     }
+    // обновляем сам user
     user.points -= item.cost;
     if (item.type == 'energy') user.energy += 10;
     await widget.database.userDao.updateUser(user);
-    await widget.database.purchaseDao.insertPurchase(Purchase(shopItemId: item.id!, date: DateTime.now()));
-    setState(() {});
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Покупка "${item.name}" успешна!')));
+
+    // ← вот ключевая правка: сохраняем покупку как подколлекцию в users/{userId}/purchases
+    await widget.database
+        .purchaseDao(user.id!)                       // передаём userId
+        .insertPurchase(Purchase(
+          shopItemId: item.id!,
+          date: DateTime.now(),
+        ));
+
+    setState(() {}); // чтобы перерисовать счётчики
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Покупка "${item.name}" успешна!')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_items.isEmpty) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
     final user = _user!;
     final items = _items!;

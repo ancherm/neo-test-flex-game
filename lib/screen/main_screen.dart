@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import '../app_database.dart';
 import '../entity/user.dart';
 import 'profile_screen.dart';
@@ -28,7 +29,13 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _loadUser() async {
-    final u = await widget.database.userDao.getUser();
+    final fb_auth.User? fbUser = fb_auth.FirebaseAuth.instance.currentUser;
+    if (fbUser == null) {
+      // если вдруг разлогинились, перенаправим на экран входа
+      Navigator.of(context).pushReplacementNamed('/');
+      return;
+    }
+    final u = await widget.database.userDao.getUserById(fbUser.uid);
     if (mounted) {
       setState(() {
         _user = u;

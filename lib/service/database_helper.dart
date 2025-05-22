@@ -1,27 +1,15 @@
-import 'package:floor/floor.dart';
-import '../app_database.dart';
-import '../entity/user.dart';
-import '../entity/test.dart';
+import '../dao/shop_dao.dart';
 import '../entity/shop.dart';
 
 class DatabaseHelper {
-  static AppDatabase? _database;
+  static final ShopDao shopDao = ShopDao();
 
-  static Future<AppDatabase> get database async {
-    if (_database != null) return _database!;
-    _database = await $FloorAppDatabase.databaseBuilder('app.db').build();
-    print('МОЯ БД ' + database.toString());
-    return _database!;
-  }
+  /// Вставляет базовые товары в Firestore, если их ещё нет
+  static Future<void> insertInitialData() async {
+    final shopItems = await shopDao.getAllShopItems();
 
- static Future<void> insertInitialData() async {
-    final db = await database;
-
-    final shopItems = await db.shopDao.getAllShopItems();
-
-    final hasEnergy = shopItems.any((item) => item.name == 'Пополнение энергии');
-    if (!hasEnergy) {
-      await db.shopDao.insertShopItem(Shop(
+    if (!shopItems.any((i) => i.name == 'Пополнение энергии')) {
+      await shopDao.insertShopItem(Shop(
         name: 'Пополнение энергии',
         cost: 10,
         type: 'energy',
@@ -30,9 +18,8 @@ class DatabaseHelper {
       ));
     }
 
-    final hasBottle = shopItems.any((item) => item.name == 'Спортивная бутылка');
-    if (!hasBottle) {
-      await db.shopDao.insertShopItem(Shop(
+    if (!shopItems.any((i) => i.name == 'Спортивная бутылка')) {
+      await shopDao.insertShopItem(Shop(
         name: 'Спортивная бутылка',
         cost: 30,
         type: 'item',
@@ -41,9 +28,8 @@ class DatabaseHelper {
       ));
     }
 
-    final hasNote = shopItems.any((item) => item.name == 'Блокнот');
-    if (!hasNote) {
-      await db.shopDao.insertShopItem(Shop(
+    if (!shopItems.any((i) => i.name == 'Блокнот')) {
+      await shopDao.insertShopItem(Shop(
         name: 'Блокнот',
         cost: 20,
         type: 'item',
@@ -52,9 +38,8 @@ class DatabaseHelper {
       ));
     }
 
-    final hasPowerbank = shopItems.any((item) => item.name == 'Powerbank');
-    if (!hasPowerbank) {
-      await db.shopDao.insertShopItem(Shop(
+    if (!shopItems.any((i) => i.name == 'Powerbank')) {
+      await shopDao.insertShopItem(Shop(
         name: 'Powerbank',
         cost: 40,
         type: 'item',
@@ -63,9 +48,8 @@ class DatabaseHelper {
       ));
     }
 
-    final hasSoundpad = shopItems.any((item) => item.name == 'Мини-колонка');
-    if (!hasSoundpad) {
-      await db.shopDao.insertShopItem(Shop(
+    if (!shopItems.any((i) => i.name == 'Мини-колонка')) {
+      await shopDao.insertShopItem(Shop(
         name: 'Мини-колонка',
         cost: 50,
         type: 'item',
